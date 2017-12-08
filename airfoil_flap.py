@@ -83,7 +83,7 @@ def plot_vortex_positions(vortices_gamma, vortices_pos, name):
 	plt.close()
 	return 
 
-@jit
+# @jit
 def get_em_drunk(vortices_gamma, vortices_pos, vortices_core_radius, delta_t, viscosity, gamma_max):
 	new_vortices_gamma,new_vortices_pos,new_vortices_core_radius = np.array([],dtype = float), np.array([],dtype = complex), np.array([], dtype = float)
 	for i in range(len(vortices_gamma)):
@@ -126,7 +126,7 @@ def create_panels_csvfile(filename, AoA = 0):#working
 
 def dot_product_complex(a, b):#working
 	return (a.real * b.real) + (a.imag * b.imag)
-@jit
+# @jit
 def get_N_n(all_panels):
 	no_of_bodies = len(all_panels)
 	N = 0
@@ -136,7 +136,7 @@ def get_N_n(all_panels):
 		N += no_of_panels
 		n.append(no_of_panels)
 	return N, n
-@jit
+# @jit
 def get_matrix_A(all_panels):
 	N, n = get_N_n(all_panels)
 	A = np.zeros((2*N+len(n), 2*N))
@@ -166,7 +166,7 @@ def get_matrix_A(all_panels):
 		panel_number1 += 1
 
 	return A
-@jit
+# @jit
 def get_matrix_B(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, circulation, body_velocity = 0):
 	N, n = get_N_n(all_panels)
 	B = np.zeros(2*N + len(n))
@@ -198,7 +198,7 @@ def solve_panels(all_panels, free_stream_velocity,free_vortices_gamma, free_vort
 	A = get_matrix_A(all_panels)
 	X = np.array(scipy.linalg.lstsq(A,B)[0])
 	return X
-@jit
+# @jit
 def divide_X_panelwise(all_panels, X):
 	N, n = get_N_n(all_panels)		
 	body_counter, panel_counter = 0, 0
@@ -212,7 +212,7 @@ def divide_X_panelwise(all_panels, X):
 		panel_counter += 1
 	return Y
 #####################################################################################################
-@jit
+# @jit
 def add_noslip_blobs123(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, circulation, body_velocity ):
 	X = solve_panels(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, circulation, body_velocity)
 	Y = divide_X_panelwise(all_panels, X)
@@ -269,6 +269,7 @@ def plot_tracers(tracers, all_panels, Y, free_stream_velocity, del_t, total_time
 ##################
 ######CHANGE TO WORK FOR MULTIPLE BODIES##############
 ####################################################
+
 def absorb_in_solid(free_vortices_pos, all_panels, free_vortices_gamma):
 	body = all_panels[0]
 	mask = np.ones(len(free_vortices_pos), dtype = bool)
@@ -311,17 +312,17 @@ def gamma_conserve(all_panels, gamma_destroyed):
 	return new_vortices_gamma, new_vortices_pos, new_vortices_core_radius
 
 #####################################################
-@jit
-def reflect_from_circle(free_vortices_pos, circle_radius, circle_center = 0):
-	for i in range(len(free_vortices_pos)):
-		z = free_vortices_pos[i] - circle_center 
-		if abs(z) < circle_radius:
-			reflected_pos = z/abs(z)
-			reflected_pos *= 2 * circle_radius - abs(z)
-			reflected_pos += circle_center
-			free_vortices_pos[i] = reflected_pos
-	return 
-@jit
+# @jit
+# def reflect_from_circle(free_vortices_pos, circle_radius, circle_center = 0):
+# 	for i in range(len(free_vortices_pos)):
+# 		z = free_vortices_pos[i] - circle_center 
+# 		if abs(z) < circle_radius:
+# 			reflected_pos = z/abs(z)
+# 			reflected_pos *= 2 * circle_radius - abs(z)
+# 			reflected_pos += circle_center
+# 			free_vortices_pos[i] = reflected_pos
+# 	return 
+# @jit
 def simulate(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius,\
 tracers, circulation, body_velocity_fn, viscosity, gamma_max, sim_time, time_step, num_method,name,run_time = 0):
 	t_start = get_current_time()
@@ -358,7 +359,7 @@ tracers, circulation, body_velocity_fn, viscosity, gamma_max, sim_time, time_ste
 		time += time_step
 		time_step_counter += 1
 		
-		quiver_plot(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, mesh2, name + "q" + str(time_step_counter))
+		# quiver_plot(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, mesh2, name + "q" + str(time_step_counter))
 		all_panels = new_all_panels
 		print str(time_step_counter) + "=time step done"
 		print "no of vortices =" + str(len(free_vortices_pos))
@@ -380,7 +381,7 @@ tracers, circulation, body_velocity_fn, time, time_step, num_method):
 	free_vortices_pos, free_vortices_core_radius, tracers, circulation, body_velocity_fn, time, time_step)
 	return vortice_final_pos, tracer_final_pos, all_panels
 
-@jit
+# @jit
 def rk2(all_panels, free_stream_velocity,  free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, tracers,\
 	circulation, body_velocity_fn, time, time_step):
 	vortice_mid_pos, tracer_mid_pos, all_panels_mid = euler(all_panels, free_stream_velocity, free_vortices_gamma,\
@@ -393,7 +394,7 @@ def rk2(all_panels, free_stream_velocity,  free_vortices_gamma, free_vortices_po
 	tracer_fin_pos += tracers - tracer_mid_pos 
 	return vortice_fin_pos, tracer_fin_pos, all_panels
 
-@jit
+# @jit
 def euler(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, tracers,\
 	circulation, body_velocity_fn, time, time_step):
 	vortice_final_pos, tracer_final_pos = [], []
@@ -436,7 +437,7 @@ def moving_average(values, n = 3) :
     avg_values = np.cumsum(values, dtype = complex)
     avg_values[n:] = avg_values[n:] - avg_values[:-n]
     return avg_values[n - 1:]/n	
-@jit
+# @jit
 def vel_by_panels(z, all_panels, Y):
 	velocity = 0
 	body_counter = 0
@@ -455,7 +456,7 @@ def move_body_panels(all_panels, body_velocity, time_step):
 	for panel in all_panels:
 		new_all_panels.append(panel + delta_y)
 	return new_all_panels
-@jit
+# @jit
 def quiver_plot(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius, mesh, name):
 	x, y = mesh
 	z = x + 1j*y
@@ -586,7 +587,7 @@ if __name__ == '__main__':
 	free_stream_velocity = 1
 	viscosity = free_stream_velocity*Ro*l/Re
 	time_step = .02
-	sim_time = 20*time_step
+	sim_time = 30*time_step
 	tracers = []
 	tracer = np.array(tracers)
 	free_vortices_gamma = np.array([],dtype = float)
@@ -595,32 +596,32 @@ if __name__ == '__main__':
 	num_method = rk2
 	
 
-	name = "0AoA"
-	vor_gamma, vor_pos, panel_pos = simulate(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius,tracers, circulation, body_velocity_fn, viscosity, gamma_max, sim_time, time_step, num_method, name,60*60*3.5)
+	# name = "0AoA"
+	# vor_gamma, vor_pos, panel_pos = simulate(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius,tracers, circulation, body_velocity_fn, viscosity, gamma_max, sim_time, time_step, num_method, name,60*60*3.5)
 
-	print "plotting"
-	for i in range(len(vor_gamma)):
-		plot_panels(panel_pos[i])	
-		plot_vortex_positions(vor_gamma[i], vor_pos[i], name + str(i))
+	# print "plotting"
+	# for i in range(len(vor_gamma)):
+	# 	plot_panels(panel_pos[i])	
+	# 	plot_vortex_positions(vor_gamma[i], vor_pos[i], name + str(i))
 		
-	I_t = I_over_time(vor_gamma, vor_pos)
-	for no_avg in [3, 10, 15, 25, 50, 100]:
-		F, t = F_aero(I_t, time_step, 0, no_avg)
-		plt.plot(t, F.real*2/(l*Ro*free_stream_velocity**2))
-		plt.title("Cd vs Time (moving point avg with "+str(no_avg)+" time steps)")
-		plt.savefig("Cd" + str(no_avg) + name +".png")
-		plt.close()
-		plt.plot(t, F.imag*2/(l*Ro*free_stream_velocity**2))
-		plt.title("Cl vs Time (moving point avg with "+str(no_avg)+" time steps)")
-		plt.savefig("Cl" + str(no_avg) + name +".png")
-		plt.close()
+	# I_t = I_over_time(vor_gamma, vor_pos)
+	# for no_avg in [3, 10, 15, 25, 50, 100]:
+	# 	F, t = F_aero(I_t, time_step, 0, no_avg)
+	# 	plt.plot(t, F.real*2/(l*Ro*free_stream_velocity**2))
+	# 	plt.title("Cd vs Time (moving point avg with "+str(no_avg)+" time steps)")
+	# 	plt.savefig("Cd" + str(no_avg) + name +".png")
+	# 	plt.close()
+	# 	plt.plot(t, F.imag*2/(l*Ro*free_stream_velocity**2))
+	# 	plt.title("Cl vs Time (moving point avg with "+str(no_avg)+" time steps)")
+	# 	plt.savefig("Cl" + str(no_avg) + name +".png")
+	# 	plt.close()
 	
-	F, t = F_aero(I_t, time_step, 0, 1)
-	print "avg force = " + str(np.sum(F)/len(F))
-	print "l = " + str(l)
-	print "AoA = 0 degree"
-	print "Re = " + str(Re)
-	print "Ro = " + str(Ro)
+	# F, t = F_aero(I_t, time_step, 0, 1)
+	# print "avg force = " + str(np.sum(F)/len(F))
+	# print "l = " + str(l)
+	# print "AoA = 0 degree"
+	# print "Re = " + str(Re)
+	# print "Ro = " + str(Ro)
 
 
 
@@ -629,8 +630,10 @@ if __name__ == '__main__':
 
 	all_panels = [create_panels_flatplate(l,b,dx, 5)]
 	name = "5AoA"
-	vor_gamma, vor_pos, panel_pos = simulate(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius,tracers, circulation, body_velocity_fn, viscosity, gamma_max, sim_time, time_step, num_method, name,60*60*3.5)
-
+	t_start = get_current_time()
+	vor_gamma, vor_pos, panel_pos = simulate(all_panels, free_stream_velocity, free_vortices_gamma, free_vortices_pos, free_vortices_core_radius,tracers, circulation, body_velocity_fn, viscosity, gamma_max, sim_time, time_step, num_method, name,60*60*9)
+	print "time = " + str(get_current_time() - t_start)
+	print "STOP STOP STOP"
 	print "plotting"
 	for i in range(len(vor_gamma)):
 		plot_panels(panel_pos[i])	
@@ -639,13 +642,13 @@ if __name__ == '__main__':
 	I_t = I_over_time(vor_gamma, vor_pos)
 	for no_avg in [3, 10, 15, 25, 50, 100]:
 		F, t = F_aero(I_t, time_step, 0, no_avg)
-		plt.plot(t, F.real*2/(l*Ro*free_stream_velocity**2))
-		plt.title("Cd vs Time (moving point avg with "+str(no_avg)+" time steps)")
-		plt.savefig("Cd" + str(no_avg)+ name + ".png")
+		plt.plot(t, F.real)
+		plt.title("Drag force vs Time (moving point avg with "+str(no_avg)+" time steps)")
+		plt.savefig("Drag" + str(no_avg)+ name + ".png")
 		plt.close()
 		plt.plot(t, F.imag*2/(l*Ro*free_stream_velocity**2))
-		plt.title("Cl vs Time (moving point avg with "+str(no_avg)+" time steps)")
-		plt.savefig("Cl" + str(no_avg) + name + ".png")
+		plt.title("Lift force vs Time (moving point avg with "+str(no_avg)+" time steps)")
+		plt.savefig("Lift" + str(no_avg) + name + ".png")
 		plt.close()
 	
 	F, t = F_aero(I_t, time_step, 0, 1)
@@ -654,4 +657,7 @@ if __name__ == '__main__':
 	print "AoA = 5 degree"
 	print "Re = " + str(Re)
 	print "Ro = " + str(Ro)
-
+	print "time_step = " + str(time_step)
+	print "integrator = " + str(num_method)
+	print "gamma_max = "  + str(gamma_max)
+	print "plate velocity = 2pift*cos(2pift) where f = 0.1" 
